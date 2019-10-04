@@ -6,7 +6,7 @@ However, the transition to hourly weather data is trivial given a higher tier AP
 
 Run _____ for a demo of the application.
 
-The API key used in the demo is not included in the source code for security reasons. The demo will run fine, but the source code will not run unless you include a config.ini file in the following format:
+The API key used in the demo is not included in the source code for security reasons. The demo will run fine, but the source code will not run unless you include a "config.ini" file in the following format:
 
 [openweathermap]
 
