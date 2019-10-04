@@ -1,4 +1,4 @@
-# Best_Time_to_Run
+# Best_Time_to_Jog
 
 Due to limitations of a free API key, calculations are done using weather data of 3-hour intervals instead of the intended hourly interval. 
 However, the transition to hourly weather data is trivial given a higher tier API key.
