@@ -10,10 +10,14 @@ class hourly_weather:
     def convert_from_epoch_to_12_hour_time(epoch_time):
         twelve_hour_time = datetime.datetime.fromtimestamp(epoch_time)
 
-        if twelve_hour_time.hour < 12:
+        if twelve_hour_time.hour == 0:
+            converted_hour = 12
+            twelve_hour_time = twelve_hour_time.replace(hour=converted_hour, minute=twelve_hour_time.minute)
             period = "am"
         elif twelve_hour_time.hour == 12:
             period = "pm"
+        elif twelve_hour_time.hour < 12:
+            period = "am"
         else:
             converted_hour = twelve_hour_time.hour - 12
             twelve_hour_time = twelve_hour_time.replace(hour=converted_hour, minute=twelve_hour_time.minute)
@@ -21,7 +25,7 @@ class hourly_weather:
         return (twelve_hour_time, period)
 
     @staticmethod
-    def print_time_tuple(self, twelve_hour_time, period):
+    def time_tuple_to_string(twelve_hour_time, period):
         if twelve_hour_time.minute == 0:
             return str(twelve_hour_time.hour) + ":" + str(twelve_hour_time.minute) + "0 " + period
 
@@ -30,8 +34,8 @@ class hourly_weather:
     sunrise_time = None
     sunset_time = None
 
-    def __init__(self, ):
-        self.time_tuple = None
-        self.real_feel_temperature = None
-        self.uv_index = None
-        self.precipitation_probability = None
+    def __init__(self, time_tuple, real_feel_temperature_tuple, precipitation_probability, uv_index):
+        self.time_tuple = time_tuple
+        self.real_feel_temperature_tuple = real_feel_temperature_tuple
+        self.precipitation_probability = precipitation_probability
+        self.uv_index = uv_index
