@@ -8,11 +8,12 @@ def main():
     postal_or_zip_code = "M1P3G4"
     # location_key = get_location_key(accuweather_api_key, postal_or_zip_code)
     location_key = "48968_PC"
+    # Make this configurable
     metric = "true"
 
     hourly_weather_instance_list = retrieve_info_class.retrieve_info.get_hourly_weather(location_key, accuweather_api_key, metric)
 
-    # USE IsDayLight to determine sunrise/sunset time
+    retrieve_info_class.retrieve_info.remove_incompatible_hourly_weather(hourly_weather_instance_list)
 
 
 
@@ -24,6 +25,7 @@ def main():
         if hourly_weather_class.hourly_weather.sunset_time != None:
             print("Sunset: " + hourly_weather_class.hourly_weather.sunset_time)
 
+        # For testing purposes
         print("Time: " + hourly_weather_class.hourly_weather.time_tuple_to_string(*instance.time_tuple))
         print("Real-Feel Temperature: " + str(instance.real_feel_temperature_tuple[0]) + str(instance.real_feel_temperature_tuple[1]))
         print("Precipitation Probability: " + str(instance.precipitation_probability))

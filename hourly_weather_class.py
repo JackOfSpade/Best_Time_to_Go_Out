@@ -35,7 +35,9 @@ class hourly_weather:
     sunset_time = None
 
     def __init__(self, time_tuple, real_feel_temperature_tuple, precipitation_probability, uv_index):
+        # datetime object and period string
         self.time_tuple = time_tuple
+        # temperature value and unit type
         self.real_feel_temperature_tuple = real_feel_temperature_tuple
         self.precipitation_probability = precipitation_probability
         self.uv_index = uv_index

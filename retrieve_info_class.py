@@ -5,8 +5,9 @@ import json
 import time
 import datetime
 import tkinter
-
+import database_class
 import hourly_weather_class
+import copy
 
 
 class retrieve_info:
@@ -32,9 +33,9 @@ class retrieve_info:
 
     @staticmethod
     def get_hourly_weather(location_key, api_key, metric):
-        # url = "http://dataservice.accuweather.com/forecasts/v1/hourly/24hour/%s?apikey=%s&details=true&metric=%s" % (location_key, api_key, metric)
+        # url = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/%s?apikey=%s&details=true&metric=%s" % (location_key, api_key, metric)
 
-        # Save a local copy in case internet fails.
+        # Save a local copy to text file in case internet fails.
         # with open("weather_list.txt", "w") as file_out:
         #    try:
         #        json.dump(requests.get(url).json(), file_out)
@@ -42,8 +43,19 @@ class retrieve_info:
         #        print(e)
         #        tkinter.messagebox.showerror("Cannot connect to the weather API.\nPreviously saved weather data will be used.", "Error")
 
-        with open("weather_list.txt") as file:
-            weather_list = json.load(file)
+        # Open weather data from text file
+        # with open("weather_list.txt") as file:
+        #    weather_list = json.load(file)
+
+        # Save a local copy to shelve in case internet fails.
+        # try:
+        #     database_class.database.add("weather", json.dumps(requests.get(url).json()))
+        # except requests.exceptions.RequestException as e:
+        #     print(e)
+        #     tkinter.messagebox.showerror("Cannot connect to the weather API.\nPreviously saved weather data will be used.", "Error")
+
+        # Open weather data from database
+        weather_list = json.loads(database_class.database.access("weather"))
 
         hourly_weather_instance_list = []
         previous_daylight = weather_list[0]["IsDaylight"]
@@ -57,7 +69,6 @@ class retrieve_info:
 
             # Find sunrise or sunset if not too late.
             previous_hour_plus_30_minutes = time_tuple[0].replace(hour = time_tuple[0].hour - 1, minute = 30)
-
             if not previous_daylight and dictionary["IsDaylight"]:
                 hourly_weather_class.hourly_weather.sunrise_time = hourly_weather_class.hourly_weather.time_tuple_to_string(previous_hour_plus_30_minutes, time_tuple[1])
             elif previous_daylight and not dictionary["IsDaylight"]:
@@ -72,3 +83,26 @@ class retrieve_info:
                 hourly_weather_instance_list.append(hourly_weather_instance)
 
         return hourly_weather_instance_list
+
+    @staticmethod
+    # 8C to 23C
+    def remove_incompatible_hourly_weather(hourly_weather_instance_list):
+        i = 0
+        length = len(hourly_weather_instance_list)
+        while i < length:
+                if hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "C":
+                    if hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < 8 or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > 23:
+                        hourly_weather_instance_list.remove(hourly_weather_instance_list[i])
+                        i -= 1
+                        length -= 1
+                elif hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "F":
+                    if hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < 46.4 or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > 73.4:
+                        hourly_weather_instance_list.remove(hourly_weather_instance_list[i])
+                        i -= 1
+                        length -= 1
+
+                i += 1
+
+    @staticmethod
+    def group_compatible_hourly_weather(hourly_weather_instance_list):
+        None
