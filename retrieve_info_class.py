@@ -61,11 +61,13 @@ class retrieve_info:
         previous_daylight = weather_list[0]["IsDaylight"]
 
         for dictionary in weather_list:
-            time_tuple = hourly_weather_class.hourly_weather.convert_from_epoch_to_12_hour_time(dictionary["EpochDateTime"])
+            temp_time_tuple = hourly_weather_class.hourly_weather.convert_from_epoch_to_12_hour_time(dictionary["EpochDateTime"])
+            time_tuple = (temp_time_tuple[0], temp_time_tuple[1])
+            twenty_four_hour_time = temp_time_tuple[2]
             real_feel_temperature_tuple = (dictionary["RealFeelTemperature"]["Value"], dictionary["RealFeelTemperature"]["Unit"])
             precipitation_probability = dictionary["PrecipitationProbability"]
             uv_index = dictionary["UVIndex"]
-            hourly_weather_instance = hourly_weather_class.hourly_weather(time_tuple, real_feel_temperature_tuple, precipitation_probability, uv_index)
+            hourly_weather_instance = hourly_weather_class.hourly_weather(time_tuple, twenty_four_hour_time, real_feel_temperature_tuple, precipitation_probability, uv_index)
 
             # Find sunrise or sunset if not too late.
             previous_hour_plus_30_minutes = time_tuple[0].replace(hour = time_tuple[0].hour - 1, minute = 30)
@@ -90,19 +92,36 @@ class retrieve_info:
         i = 0
         length = len(hourly_weather_instance_list)
         while i < length:
-                if hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "C":
-                    if hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < 8 or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > 23:
-                        hourly_weather_instance_list.remove(hourly_weather_instance_list[i])
-                        i -= 1
-                        length -= 1
-                elif hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "F":
-                    if hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < 46.4 or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > 73.4:
-                        hourly_weather_instance_list.remove(hourly_weather_instance_list[i])
-                        i -= 1
-                        length -= 1
+            if (hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "C" and (hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < 8 or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > 23)) \
+                    or \
+                        (hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "F" and (hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < 46.4 or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > 73.4)) or hourly_weather_instance_list[i].precipitation_probability > 0:
+                hourly_weather_instance_list.remove(hourly_weather_instance_list[i])
+                i -= 1
+                length -= 1
 
-                i += 1
+            i += 1
 
     @staticmethod
     def group_compatible_hourly_weather(hourly_weather_instance_list):
-        None
+        i = 0
+        length = len(hourly_weather_instance_list)
+        while i < length:
+            if(i + 1 < length):
+                if type(hourly_weather_instance_list[i]) is hourly_weather_class.hourly_weather:
+                    if hourly_weather_instance_list[i + 1].twenty_four_hour_time.hour == (hourly_weather_instance_list[i].twenty_four_hour_time.hour + 1) \
+                        or \
+                            (hourly_weather_instance_list[i + 1].twenty_four_hour_time.hour == 0 and hourly_weather_instance_list[i].twenty_four_hour_time.hour == 23):
+                        hourly_weather_instance_list[i] = (hourly_weather_instance_list[i], hourly_weather_instance_list[i+1])
+                        hourly_weather_instance_list.remove(hourly_weather_instance_list[i+1])
+                        i -= 1
+                        length -= 1
+                elif type(hourly_weather_instance_list[i]) is tuple:
+                    if hourly_weather_instance_list[i + 1].twenty_four_hour_time.hour == (hourly_weather_instance_list[i][len(hourly_weather_instance_list[i]) - 1].twenty_four_hour_time.hour + 1) \
+                         or \
+                            (hourly_weather_instance_list[i + 1].twenty_four_hour_time.hour == 0 and hourly_weather_instance_list[i][len(hourly_weather_instance_list[i]) - 1].twenty_four_hour_time.hour == 23):
+                        hourly_weather_instance_list[i] = (hourly_weather_instance_list[i][0], hourly_weather_instance_list[i + 1])
+                        hourly_weather_instance_list.remove(hourly_weather_instance_list[i + 1])
+                        i -= 1
+                        length -= 1
+            i += 1
+
