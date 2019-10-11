@@ -119,7 +119,7 @@ class retrieve_info:
                     if hourly_weather_instance_list[i + 1].twenty_four_hour_time.hour == (hourly_weather_instance_list[i][len(hourly_weather_instance_list[i]) - 1].twenty_four_hour_time.hour + 1) \
                          or \
                             (hourly_weather_instance_list[i + 1].twenty_four_hour_time.hour == 0 and hourly_weather_instance_list[i][len(hourly_weather_instance_list[i]) - 1].twenty_four_hour_time.hour == 23):
-                        hourly_weather_instance_list[i].append(hourly_weather_instance_list[i + 1])
+                        hourly_weather_instance_list[i] = hourly_weather_instance_list[i] + (hourly_weather_instance_list[i + 1],)
                         hourly_weather_instance_list.remove(hourly_weather_instance_list[i + 1])
                         i -= 1
                         length -= 1

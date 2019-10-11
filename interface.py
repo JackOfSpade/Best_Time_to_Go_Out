@@ -2,18 +2,11 @@ import json
 import retrieve_info_class
 import hourly_weather_class
 import datetime
-import tkinter
 
-
-
-def main():
+def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
     accuweather_api_key = retrieve_info_class.retrieve_info.get_accuweather_api_key()
-    postal_or_zip_code = "M1P3G4"
     # location_key = get_location_key(accuweather_api_key, postal_or_zip_code)
     location_key = "48968_PC"
-    # Make this configurable
-    metric = "true"
-
     hourly_weather_instance_list = retrieve_info_class.retrieve_info.get_hourly_weather(location_key, accuweather_api_key, metric)
 
     # For testing purposes
@@ -31,7 +24,8 @@ def main():
         print("UV Index: " + str(instance.uv_index))
         print("\n")
 
-    print(" ------------------------------------------------------------------------------------------------------------ \n")
+    print(
+        " ------------------------------------------------------------------------------------------------------------ \n")
 
     retrieve_info_class.retrieve_info.remove_incompatible_hourly_weather(hourly_weather_instance_list)
 
@@ -49,7 +43,8 @@ def main():
         print("UV Index: " + str(instance.uv_index))
         print("\n")
 
-    print(" ------------------------------------------------------------------------------------------------------------ \n")
+    print(
+        " ------------------------------------------------------------------------------------------------------------ \n")
 
     retrieve_info_class.retrieve_info.group_compatible_hourly_weather(hourly_weather_instance_list)
 
@@ -57,14 +52,63 @@ def main():
     for element in hourly_weather_instance_list:
         if type(element) is hourly_weather_class.hourly_weather:
             if element.twenty_four_hour_time.hour == 23:
-                next_hour = element.twenty_four_hour_time.hour.replace(hour = 0)
+                next_hour = element.twenty_four_hour_time.hour.replace(hour=0)
             else:
-                next_hour = element.twenty_four_hour_time.replace(hour = element.twenty_four_hour_time.hour + 1)
+                next_hour = element.twenty_four_hour_time.replace(hour=element.twenty_four_hour_time.hour + 1)
 
-            print("Time: " + hourly_weather_class.hourly_weather.time_tuple_to_string(*element.time_tuple) + " to " + hourly_weather_class.hourly_weather.time_tuple_to_string(hourly_weather_class.hourly_weather.convert_from_24_to_12_hour_time(next_hour)))
+            print("Time: " + hourly_weather_class.hourly_weather.time_tuple_to_string(
+                *element.time_tuple) + " to " + hourly_weather_class.hourly_weather.time_tuple_to_string(
+                hourly_weather_class.hourly_weather.convert_from_24_to_12_hour_time(next_hour)))
         elif type(element) is tuple:
-            print("Time: " + hourly_weather_class.hourly_weather.time_tuple_to_string(*element[0].time_tuple) + " to " + hourly_weather_class.hourly_weather.time_tuple_to_string(*element[len(element) - 1].time_tuple))
+            print("Time: " + hourly_weather_class.hourly_weather.time_tuple_to_string(
+                *element[0].time_tuple) + " to " + hourly_weather_class.hourly_weather.time_tuple_to_string(
+                *element[len(element) - 1].time_tuple))
 
+    return hourly_weather_instance_list
+
+import tkinter
+
+def interface():
+    root = tkinter.Tk()
+    root.title("Best Time to Jog?")
+
+    # Add a grid
+    mainframe = tkinter.Frame(root)
+    mainframe.grid(column=0, row=0, sticky=(tkinter.N, tkinter.W, tkinter.E, tkinter.S))
+    mainframe.columnconfigure(0, weight=1)
+    mainframe.rowconfigure(0, weight=1)
+    mainframe.pack(pady=100, padx=100)
+
+    # Create a Tkinter variable
+    tkvar = tkinter.StringVar(root)
+
+    # set to the used in the drop down.
+    choices = {"Imperial", "Metric"}
+    # set the default option
+    tkvar.set("Imperial")
+
+    popupMenu = tkinter.OptionMenu(mainframe, tkvar, *choices)
+    tkinter.Label(mainframe, text="Choose a unit type:").grid(row=1, column=1)
+    popupMenu.grid(row=2, column=1)
+
+    # on change dropdown value
+    def change_dropdown(*args):
+        print(tkvar.get())
+
+    # MAKE AN OKAY BUTTONNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+
+    # link function to change dropdown
+    tkvar.trace('w', change_dropdown)
+
+    root.mainloop()
+
+
+def main():
+    # Make this configurable
+    metric = "true"
+    postal_or_zip_code = "M1P3G4"
+    hourly_weather_instance_list = get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code)
+    interface()
 
 if __name__ == "__main__":
     main()
