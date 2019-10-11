@@ -2,6 +2,8 @@ import json
 import retrieve_info_class
 import hourly_weather_class
 import datetime
+import tkinter
+
 
 
 def main():
