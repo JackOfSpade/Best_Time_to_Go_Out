@@ -48,11 +48,11 @@ class retrieve_info:
         #    weather_list = json.load(file)
 
         # Save a local copy to shelve in case internet fails.
-        # try:
-        #     database_class.database.add("weather", json.dumps(requests.get(url).json()))
-        # except requests.exceptions.RequestException as e:
-        #     print(e)
-        #     tkinter.messagebox.showerror("Cannot connect to the weather API.\nPreviously saved weather data will be used.", "Error")
+        try:
+            database_class.database.add("weather", json.dumps(requests.get(url).json()))
+        except requests.exceptions.RequestException as e:
+            print(e)
+            tkinter.messagebox.showerror("Cannot connect to the weather API.\nPreviously saved weather data will be used.", "Error")
 
         # Open weather data from database
         weather_list = json.loads(database_class.database.access("weather"))

@@ -2,6 +2,8 @@ import json
 import retrieve_info_class
 import hourly_weather_class
 import datetime
+import tkinter
+
 
 def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
     accuweather_api_key = retrieve_info_class.retrieve_info.get_accuweather_api_key()
@@ -38,7 +40,8 @@ def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
             print("Sunset: " + hourly_weather_class.hourly_weather.sunset_time)
 
         print("Time: " + hourly_weather_class.hourly_weather.time_tuple_to_string(*instance.time_tuple))
-        print("Real-Feel Temperature: " + str(instance.real_feel_temperature_tuple[0]) + str(instance.real_feel_temperature_tuple[1]))
+        print("Real-Feel Temperature: " + str(instance.real_feel_temperature_tuple[0]) + str(
+            instance.real_feel_temperature_tuple[1]))
         print("Precipitation Probability: " + str(instance.precipitation_probability))
         print("UV Index: " + str(instance.uv_index))
         print("\n")
@@ -66,7 +69,8 @@ def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
 
     return hourly_weather_instance_list
 
-import tkinter
+def ok_button_function(tvar):
+    main(tvar)
 
 def interface():
     root = tkinter.Tk()
@@ -90,25 +94,22 @@ def interface():
     popupMenu = tkinter.OptionMenu(mainframe, tkvar, *choices)
     tkinter.Label(mainframe, text="Choose a unit type:").grid(row=1, column=1)
     popupMenu.grid(row=2, column=1)
-
-    # on change dropdown value
-    def change_dropdown(*args):
-        print(tkvar.get())
-
-    # MAKE AN OKAY BUTTONNNNNNNNNNNNNNNNNNNNNNNNNNNNN
-
-    # link function to change dropdown
-    tkvar.trace('w', change_dropdown)
+    button = tkinter.Button(mainframe, text="OK", command= lambda: ok_button_function(tkvar.get()))
+    button.grid(row=4, column=1)
 
     root.mainloop()
 
-
-def main():
+def main(tvar):
     # Make this configurable
-    metric = "true"
+    print(tvar)
+    if tvar == "Imperial":
+        metric = "false"
+    else:
+        metric = "true"
+
     postal_or_zip_code = "M1P3G4"
     hourly_weather_instance_list = get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code)
-    interface()
+
 
 if __name__ == "__main__":
-    main()
+    interface()
