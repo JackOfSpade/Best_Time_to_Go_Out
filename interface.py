@@ -3,6 +3,7 @@ import retrieve_info_class
 import hourly_weather_class
 import datetime
 import tkinter
+import plotly.graph_objects as go
 
 
 def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
@@ -70,10 +71,6 @@ def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
 
     return hourly_weather_instance_list
 
-def ok_button_function(option_menu_value, postal_or_zip_code, mainframe):
-    main(option_menu_value, postal_or_zip_code)
-
-
 def interface():
     root = tkinter.Tk()
     root.title("Best Time to Jog?")
@@ -97,38 +94,28 @@ def interface():
     tkinter.Label(mainframe, text="Choose a unit type:").grid(row=1, column=1)
     popup_menu.grid(row=2, column=1)
 
-    def handle_focus_in(arg):
-        entry_box.delete(0, tkinter.END)
-        entry_box.config(fg='black')
-
-    def handle_focus_out(arg):
-        entry_box.delete(0, tkinter.END)
-        entry_box.config(fg='grey')
-        entry_box.insert(0, "Example: Joe Bloggs")
-
-    def handle_enter(arg):
-        ok_button_function(tkvar.get(), entry_box.get(),  mainframe)
-
     entry_box = tkinter.Entry(mainframe, fg="grey")
     entry_box.insert(0, "Postal Code")
     entry_box.grid(row=3, column=1)
-    entry_box.bind("<FocusIn>", handle_focus_in)
-    entry_box.bind("<FocusOut>", handle_focus_out)
-    entry_box.bind("<Return>", handle_enter)
+    entry_box.bind("<FocusIn>", lambda arg: (entry_box.delete(0, tkinter.END), entry_box.config(fg='black')))
+    entry_box.bind("<FocusOut>", lambda arg: (entry_box.delete(0, tkinter.END), entry_box.config(fg='grey'), entry_box.insert(0, "Example: Joe Bloggs")))
+    entry_box.bind("<Return>", lambda arg: (main(tkvar.get(), entry_box.get(), mainframe), ))
 
-
-    button = tkinter.Button(mainframe, text="OK", command=lambda: ok_button_function(tkvar.get(), entry_box.get(), mainframe))
+    button = tkinter.Button(mainframe, text="OK", command=lambda: (main(tkvar.get(), entry_box.get(), mainframe), ))
     button.grid(row=4, column=1)
 
     root.mainloop()
 
-def main(option_menu_value, postal_or_zip_code):
+def main(option_menu_value, postal_or_zip_code, mainframe):
     if option_menu_value == "Imperial":
         metric = "false"
     else:
         metric = "true"
 
     hourly_weather_instance_list = get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code)
+    fig = go.Figure(data=[go.Table(header=dict(values=['A Scores', 'B Scores']), cells=dict(values=[[100, 90, 80, 90], [95, 85, 75, 95]]))])
+    fig.show()
+
 
 
 if __name__ == "__main__":
