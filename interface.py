@@ -3,7 +3,7 @@ import retrieve_info_class
 import hourly_weather_class
 import datetime
 import tkinter
-import plotly.graph_objects as go
+import plotly.graph_objects as graph_objects
 
 
 def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
@@ -113,8 +113,21 @@ def main(option_menu_value, postal_or_zip_code, mainframe):
         metric = "true"
 
     hourly_weather_instance_list = get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code)
-    fig = go.Figure(data=[go.Table(header=dict(values=['A Scores', 'B Scores']), cells=dict(values=[[100, 90, 80, 90], [95, 85, 75, 95]]))])
-    fig.show()
+    header_column1_list = ["Best Time to Jog"]
+    header_column2_list = ["6:00am - 7:00am"]
+    header_column3_list = ["2:00pm - 3:00pm"]
+    header_dictionary = dict()
+    header_dictionary["values"] = [header_column1_list, header_column2_list, header_column3_list]
+
+    cell_column1_list = ["Feels-like Temperature Range", "UV Index range"]
+    cell_column2_list = [95, 85]
+    cell_column3_list = [101, 102]
+
+    cell_dictionary = dict()
+    cell_dictionary["values"] = [cell_column1_list, cell_column2_list, cell_column3_list]
+
+    table = graph_objects.Figure(data=[graph_objects.Table(header=header_dictionary, cells=cell_dictionary)])
+    table.show()
 
 
 
