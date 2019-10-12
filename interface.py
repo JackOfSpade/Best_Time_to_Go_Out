@@ -7,7 +7,8 @@ import tkinter
 
 def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
     accuweather_api_key = retrieve_info_class.retrieve_info.get_accuweather_api_key()
-    # location_key = get_location_key(accuweather_api_key, postal_or_zip_code)
+    # location_key = retrieve_info_class.retrieve_info.get_location_key(accuweather_api_key, postal_or_zip_code)
+    # Revert after testing:
     location_key = "48968_PC"
     hourly_weather_instance_list = retrieve_info_class.retrieve_info.get_hourly_weather(location_key, accuweather_api_key, metric)
 
@@ -69,8 +70,9 @@ def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
 
     return hourly_weather_instance_list
 
-def ok_button_function(tvar):
-    main(tvar)
+def ok_button_function(option_menu_value, postal_or_zip_code, mainframe):
+    main(option_menu_value, postal_or_zip_code)
+
 
 def interface():
     root = tkinter.Tk()
@@ -80,7 +82,7 @@ def interface():
     mainframe = tkinter.Frame(root)
     mainframe.grid(column=0, row=0, sticky=(tkinter.N, tkinter.W, tkinter.E, tkinter.S))
     mainframe.columnconfigure(0, weight=1)
-    mainframe.rowconfigure(0, weight=1)
+    mainframe.rowconfigure(0, weight=1,)
     mainframe.pack(pady=100, padx=100)
 
     # Create a Tkinter variable
@@ -91,23 +93,41 @@ def interface():
     # set the default option
     tkvar.set("Imperial")
 
-    popupMenu = tkinter.OptionMenu(mainframe, tkvar, *choices)
+    popup_menu = tkinter.OptionMenu(mainframe, tkvar, *choices)
     tkinter.Label(mainframe, text="Choose a unit type:").grid(row=1, column=1)
-    popupMenu.grid(row=2, column=1)
-    button = tkinter.Button(mainframe, text="OK", command= lambda: ok_button_function(tkvar.get()))
+    popup_menu.grid(row=2, column=1)
+
+    def handle_focus_in(arg):
+        entry_box.delete(0, tkinter.END)
+        entry_box.config(fg='black')
+
+    def handle_focus_out(arg):
+        entry_box.delete(0, tkinter.END)
+        entry_box.config(fg='grey')
+        entry_box.insert(0, "Example: Joe Bloggs")
+
+    def handle_enter(arg):
+        ok_button_function(tkvar.get(), entry_box.get(),  mainframe)
+
+    entry_box = tkinter.Entry(mainframe, fg="grey")
+    entry_box.insert(0, "Postal Code")
+    entry_box.grid(row=3, column=1)
+    entry_box.bind("<FocusIn>", handle_focus_in)
+    entry_box.bind("<FocusOut>", handle_focus_out)
+    entry_box.bind("<Return>", handle_enter)
+
+
+    button = tkinter.Button(mainframe, text="OK", command=lambda: ok_button_function(tkvar.get(), entry_box.get(), mainframe))
     button.grid(row=4, column=1)
 
     root.mainloop()
 
-def main(tvar):
-    # Make this configurable
-    print(tvar)
-    if tvar == "Imperial":
+def main(option_menu_value, postal_or_zip_code):
+    if option_menu_value == "Imperial":
         metric = "false"
     else:
         metric = "true"
 
-    postal_or_zip_code = "M1P3G4"
     hourly_weather_instance_list = get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code)
 
 
