@@ -72,28 +72,54 @@ def extract_data(hourly_weather_instance_list):
     data_list = []
 
     for element in hourly_weather_instance_list:
-        if type(element) is hourly_weather_class.hourly_weather:
-            data_list[hourly_weather_instance_list.index(element)] = []
+        temp_list = []
 
+        if type(element) is hourly_weather_class.hourly_weather:
             if element.twenty_four_hour_time.hour == 23:
                 next_hour = element.twenty_four_hour_time.hour.replace(hour=0)
             else:
                 next_hour = element.twenty_four_hour_time.replace(hour=element.twenty_four_hour_time.hour + 1)
 
-            data_list[hourly_weather_instance_list.index(element)][0] = hourly_weather_class.hourly_weather.time_tuple_to_string(*element.time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(hourly_weather_class.hourly_weather.convert_from_24_to_12_hour_time(next_hour))
-            data_list[hourly_weather_instance_list.index(element)][1] = element.real_feel_temperature_tuple
-            data_list[hourly_weather_instance_list.index(element)][2] = element.uv_index
-        elif type(element) is tuple:
-            data_list[hourly_weather_instance_list.index(element)] = []
-            data_list[hourly_weather_instance_list.index(element)][1] = []
-            data_list[hourly_weather_instance_list.index(element)][2] = []
+            temp_list.append(hourly_weather_class.hourly_weather.time_tuple_to_string(*element.time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(hourly_weather_class.hourly_weather.convert_from_24_to_12_hour_time(next_hour)))
+            temp_list.append(element.real_feel_temperature_tuple)
+            temp_list.append(element.uv_index)
 
-            data_list[hourly_weather_instance_list.index(element)][0] = hourly_weather_class.hourly_weather.time_tuple_to_string(*element[0].time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(*element[len(element) - 1].time_tuple)
+            data_list.append(temp_list)
+        elif type(element) is tuple:
+            temp_list.append(hourly_weather_class.hourly_weather.time_tuple_to_string(*element[0].time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(*element[len(element) - 1].time_tuple))
+            temp_list2 = []
+            temp_list3 = []
 
             for item in element:
-                data_list[hourly_weather_instance_list.index(element)][1].append(item.real_feel_temperature_tuple)
-                data_list[hourly_weather_instance_list.index(element)][2].append(item.uv_index)
+                temp_list2.append(item.real_feel_temperature_tuple)
+                temp_list3.append(item.uv_index)
 
+            temp_list.append(temp_list2)
+            temp_list.append(temp_list3)
+
+            data_list.append(temp_list)
+
+        # Get min/max
+    for element in data_list:
+
+        minimum = min([x[0] for x in element[1]])
+        maximum = max([x[0] for x in element[1]])
+
+        if minimum == maximum:
+            element[1] = [str(minimum) + str(element[1][data_list.index(element)][1])]
+        else:
+            element[1] = [str(minimum) + str(element[1][data_list.index(element)][1]) + " - " + str(maximum) + str(element[1][data_list.index(element)][1])]
+                
+        minimum = min(element[2])
+        maximum = max(element[2])
+
+        if minimum == maximum:
+            element[2] = [str(minimum)]
+        else:
+            element[2] = [str(minimum) + " - " + str(maximum)]
+
+        element[1].append(element[2])
+        del element[2]
     return data_list
 
 def main(option_menu_value, postal_or_zip_code, mainframe):
@@ -103,17 +129,20 @@ def main(option_menu_value, postal_or_zip_code, mainframe):
         metric = "true"
 
     hourly_weather_instance_list = get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code)
+    data_list = extract_data(hourly_weather_instance_list)
     header_column1_list = ["Best Time to Jog"]
     header_dictionary = dict()
     header_dictionary["values"] = [header_column1_list]
-    header_dictionary["values"] = header_dictionary["values"] + extract_time_intervals(hourly_weather_instance_list)
 
-    cell_column1_list = ["Feels-like Temperature Range", "UV Index Range"]
-    cell_column2_list = [95, 85]
-    cell_column3_list = [101, 102]
-
+    cell_column1_list = [["Feels-like Temperature", "UV Index"]]
     cell_dictionary = dict()
-    cell_dictionary["values"] = [cell_column1_list, cell_column2_list, cell_column3_list]
+    cell_dictionary["values"] = cell_column1_list
+
+    print(data_list)
+
+    for element in data_list:
+         header_dictionary["values"].append(element[0])
+         cell_dictionary["values"].append(element[1])
 
     table = graph_objects.Figure(data=[graph_objects.Table(header=header_dictionary, cells=cell_dictionary)])
     table.show()
