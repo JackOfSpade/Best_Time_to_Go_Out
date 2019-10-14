@@ -1,4 +1,6 @@
 import json
+from ctypes import windll
+
 import retrieve_info_class
 import hourly_weather_class
 import datetime
@@ -33,6 +35,7 @@ def get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code):
     return hourly_weather_instance_list
 
 def interface():
+    windll.shcore.SetProcessDpiAwareness(1)
     root = tkinter.Tk()
     root.title("Best Time to Jog?")
 
@@ -51,19 +54,25 @@ def interface():
     # set the default option
     tkvar.set("Imperial")
 
-    popup_menu = tkinter.OptionMenu(mainframe, tkvar, *choices)
-    tkinter.Label(mainframe, text="Choose a unit type:").grid(row=1, column=1)
-    popup_menu.grid(row=2, column=1)
+    option_menu = tkinter.OptionMenu(mainframe, tkvar, *choices)
+    option_menu.config(font="Calibri 12")
+    option_menu.grid(row=1, column=2)
+    # Change menu option font
+    mainframe.nametowidget(option_menu.menuname).configure(font="Calibri 12")
 
-    entry_box = tkinter.Entry(mainframe, fg="grey")
-    entry_box.insert(0, "Postal Code")
-    entry_box.grid(row=3, column=1)
+
+    tkinter.Label(mainframe, text="Unit Type:", font="Calibri 12 bold").grid(row=1, column=1)
+    tkinter.Label(mainframe, text="Zip/Postal Code:", font="Calibri 12 bold").grid(row=2, column=1)
+
+    entry_box = tkinter.Entry(mainframe, fg="grey", font="Calibri 12 bold")
+    entry_box.insert(0, "90210")
+    entry_box.grid(row=2, column=2)
     entry_box.bind("<FocusIn>", lambda arg: (entry_box.delete(0, tkinter.END), entry_box.config(fg='black')))
     entry_box.bind("<FocusOut>", lambda arg: (entry_box.delete(0, tkinter.END), entry_box.config(fg='grey'), entry_box.insert(0, "Example: Joe Bloggs")))
-    entry_box.bind("<Return>", lambda arg: (main(tkvar.get(), entry_box.get(), mainframe), ))
+    entry_box.bind("<Return>", lambda arg: (change_interface(tkvar.get(), entry_box.get(), mainframe),))
 
-    button = tkinter.Button(mainframe, text="OK", command=lambda: (main(tkvar.get(), entry_box.get(), mainframe), ))
-    button.grid(row=4, column=1)
+    button = tkinter.Button(mainframe, text="OK", command=lambda: (change_interface(tkvar.get(), entry_box.get(), mainframe),), font="Calibri 12")
+    button.grid(row=3, column=2)
 
     root.mainloop()
 
@@ -106,46 +115,82 @@ def extract_data(hourly_weather_instance_list):
         maximum = max([x[0] for x in element[1]])
 
         if minimum == maximum:
-            element[1] = [str(minimum) + str(element[1][data_list.index(element)][1])]
+            element[1] = str(minimum) + str(element[1][data_list.index(element)][1])
         else:
-            element[1] = [str(minimum) + str(element[1][data_list.index(element)][1]) + " - " + str(maximum) + str(element[1][data_list.index(element)][1])]
-                
+            element[1] = str(minimum) + " " + str(element[1][data_list.index(element)][1]) + " - " + str(maximum) + " " + str(element[1][data_list.index(element)][1])
+
         minimum = min(element[2])
         maximum = max(element[2])
 
         if minimum == maximum:
-            element[2] = [str(minimum)]
+            element[2] = str(minimum)
         else:
-            element[2] = [str(minimum) + " - " + str(maximum)]
+            element[2] = str(minimum) + " - " + str(maximum)
 
-        element[1].append(element[2])
-        del element[2]
+        # plotly table
+        # if minimum == maximum:
+        #     element[1] = [str(minimum) + str(element[1][data_list.index(element)][1])]
+        # else:
+        #     element[1] = [str(minimum) + str(element[1][data_list.index(element)][1]) + " - " + str(maximum) + str(element[1][data_list.index(element)][1])]
+        #
+        # minimum = min(element[2])
+        # maximum = max(element[2])
+        #
+        # if minimum == maximum:
+        #     element[2] = [str(minimum)]
+        # else:
+        #     element[2] = [str(minimum) + " - " + str(maximum)]
+
+        # element[1].append(element[2])
+        # del element[2]
     return data_list
 
-def main(option_menu_value, postal_or_zip_code, mainframe):
+def change_interface(option_menu_value, postal_or_zip_code, mainframe):
     if option_menu_value == "Imperial":
         metric = "false"
     else:
         metric = "true"
 
-    hourly_weather_instance_list = get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code)
-    data_list = extract_data(hourly_weather_instance_list)
-    header_column1_list = ["Best Time to Jog"]
-    header_dictionary = dict()
-    header_dictionary["values"] = [header_column1_list]
+    tuples_of_hourly_weather_instances_list = get_appropriate_hourly_weather_instance_list(metric, postal_or_zip_code)
+    data_list = extract_data(tuples_of_hourly_weather_instances_list)
 
-    cell_column1_list = [["Feels-like Temperature", "UV Index"]]
-    cell_dictionary = dict()
-    cell_dictionary["values"] = cell_column1_list
+    tkinter.Label(mainframe, text="Best Time to Jog:", font="Calibri 14 bold").grid(row=4, column=1)
+    tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold").grid(row=5, column=1)
+    tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold").grid(row=6, column=1)
 
-    print(data_list)
+    row = 4
+    column = 2
+    length = len(data_list)
+    while column - 2 < length:
+        tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14").grid(row=row, column=column)
+        tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14").grid(row=row + 1, column=column)
+        tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14").grid(row=row + 2, column=column)
+        column += 1
 
-    for element in data_list:
-         header_dictionary["values"].append(element[0])
-         cell_dictionary["values"].append(element[1])
+    if tuples_of_hourly_weather_instances_list[0][0].sunrise_time is not None:
+        tkinter.Label(mainframe, text="Sunrise: " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time, font="Calibri 14").grid(row=row + 3, column=1)
 
-    table = graph_objects.Figure(data=[graph_objects.Table(header=header_dictionary, cells=cell_dictionary)])
-    table.show()
+    if tuples_of_hourly_weather_instances_list[0][0].sunset_time is not None:
+        tkinter.Label(mainframe, text="Sunset: " + tuples_of_hourly_weather_instances_list[0][0].sunset_time, font="Calibri 14").grid(row=row + 4, column=1)
+
+
+    # plotly Table
+    # header_column1_list = ["Best Time to Jog"]
+    # header_dictionary = dict()
+    # header_dictionary["values"] = [header_column1_list]
+    #
+    # cell_column1_list = [["Feels-like Temperature", "UV Index"]]
+    # cell_dictionary = dict()
+    # cell_dictionary["values"] = cell_column1_list
+    #
+    # print(data_list)
+    #
+    # for element in data_list:
+    #      header_dictionary["values"].append(element[0])
+    #      cell_dictionary["values"].append(element[1])
+    #
+    # table = graph_objects.Figure(data=[graph_objects.Table(header=header_dictionary, cells=cell_dictionary)])
+    # table.show()
 
 
 
