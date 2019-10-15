@@ -40,7 +40,7 @@ def get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_o
 def interface():
     windll.shcore.SetProcessDpiAwareness(1)
     root = tkinter.Tk()
-    root.title("Best Time to Jog?")
+    root.title("Best Time to Go Out")
 
     # Add a grid
     mainframe = tkinter.Frame(root)
@@ -71,18 +71,18 @@ def interface():
     exercise_type_option_menu.grid(row=0, column=2)
     mainframe.nametowidget(exercise_type_option_menu.menuname).configure(font="Calibri 12")
 
-    tkinter.Label(mainframe, text="Type of Exercise:", font="Calibri 12 bold", padx=20, pady=10).grid(row=0, column=1)
-    tkinter.Label(mainframe, text="Unit Type:", font="Calibri 12 bold", padx=20, pady=10).grid(row=1, column=1)
-    tkinter.Label(mainframe, text="Zip/Postal Code:", font="Calibri 12 bold", padx=20, pady=10).grid(row=2, column=1)
+    tkinter.Label(mainframe, text="Type of Exercise:", font="Calibri 12 bold").grid(row=0, column=1, padx=20, pady=10)
+    tkinter.Label(mainframe, text="Unit Type:", font="Calibri 12 bold").grid(row=1, column=1, padx=20, pady=10)
+    tkinter.Label(mainframe, text="Zip/Postal Code:", font="Calibri 12 bold").grid(row=2, column=1, padx=20, pady=10)
 
     entry_box = tkinter.Entry(mainframe, fg="#D3D3D3", font="Calibri 12 bold")
     entry_box.insert(0, "90210")
-    entry_box.grid(row=2, column=2)
-    entry_box.bind("<FocusIn>", lambda arg: (entry_box.delete(0, tkinter.END), entry_box.config(fg="black")))
+    entry_box.grid(row=2, column=2, padx=20, pady=10)
+    entry_box.bind("<FocusIn>", lambda arg: (entry_box.delete(0, tkinter.END), entry_box.config(fg="black", font="Calibri 12")))
     entry_box.bind("<Return>", lambda arg: (change_interface(unit_type.get(), exercise_type.get(), entry_box.get(), mainframe),))
 
     button = tkinter.Button(mainframe, text="OK", command=lambda: (change_interface(unit_type.get(), exercise_type.get(), entry_box.get(), mainframe),), font="Calibri 12")
-    button.grid(row=3, column=2)
+    button.grid(row=3, column=2, padx=20, pady=10)
 
     root.mainloop()
 
@@ -162,30 +162,36 @@ def change_interface(unit_type, exercise_type, postal_or_zip_code, mainframe):
         metric = "true"
 
     tuples_of_hourly_weather_instances_list = get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_or_zip_code)
-    data_list = extract_data(tuples_of_hourly_weather_instances_list)
 
-    tkinter.Label(mainframe, text="Best Time to Jog:", font="Calibri 14 bold", padx=20, pady=10).grid(row=4, column=1)
-    tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold", padx=20, pady=10).grid(row=5, column=1)
-    tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold", padx=20, pady=10).grid(row=6, column=1)
+    if len(tuples_of_hourly_weather_instances_list) > 0:
+        data_list = extract_data(tuples_of_hourly_weather_instances_list)
 
-    row = 4
-    column = 2
-    length = len(data_list)
-    while column - 2 < length:
-        tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14", padx=20, pady=10).grid(row=row, column=column)
-        tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14", padx=20, pady=10).grid(row=row + 1, column=column)
-        tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14", padx=20, pady=10).grid(row=row + 2, column=column)
-        column += 1
+        tkinter.Label(mainframe, text="Best Time to Go Out:", font="Calibri 14 bold").grid(row=4, column=1, padx=20, pady=(100,10))
+        tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold").grid(row=5, column=1, padx=20, pady=10)
+        tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold").grid(row=6, column=1, padx=20, pady=10)
 
-    if tuples_of_hourly_weather_instances_list[0][0].sunrise_time is not None:
-        tkinter.Label(mainframe, text="Sunrise: " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time, font="Calibri 14", padx=20, pady=10).grid(row=row + 3, column=1)
+        row = 4
+        column = 2
+        length = len(data_list)
+        while column - 2 < length:
+            tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14").grid(row=row, column=column, padx=20, pady=(100,10))
+            tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14").grid(row=row + 1, column=column, padx=20, pady=10)
+            tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14").grid(row=row + 2, column=column, padx=20, pady=10)
+            column += 1
 
-    if tuples_of_hourly_weather_instances_list[0][0].sunset_time is not None:
-        tkinter.Label(mainframe, text="Sunset: " + tuples_of_hourly_weather_instances_list[0][0].sunset_time, font="Calibri 14", padx=20, pady=10).grid(row=row + 4, column=1)
+        if tuples_of_hourly_weather_instances_list[0][0].sunrise_time is not None:
+            tkinter.Label(mainframe, text="Sunrise at " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time, font="Calibri 14").grid(row=row + 3, column=1, padx=20, pady=10)
+
+        if tuples_of_hourly_weather_instances_list[0][0].sunset_time is not None:
+            tkinter.Label(mainframe, text="Sunset at " + tuples_of_hourly_weather_instances_list[0][0].sunset_time, font="Calibri 14").grid(row=row + 4, column=1, padx=20, pady=10)
+    else:
+        tkinter.Label(mainframe, text="There is no good time for the rest of today. Try again tomorrow.", font="Calibri 14").grid(row=4, column=1, padx=20, pady=(100, 10))
+
+
 
 
     # plotly Table
-    # header_column1_list = ["Best Time to Jog"]
+    # header_column1_list = ["Best Time to Go Out"]
     # header_dictionary = dict()
     # header_dictionary["values"] = [header_column1_list]
     #

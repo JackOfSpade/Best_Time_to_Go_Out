@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Best_Time_to_Jog.iml" filepath="$PROJECT_DIR$/.idea/Best_Time_to_Jog.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Best_Time_to_Go_Out/.idea/Best_Time_to_Go_Out.iml" filepath="$PROJECT_DIR$/../Best_Time_to_Go_Out/.idea/Best_Time_to_Go_Out.iml" />
     </modules>
   </component>
 </project>
