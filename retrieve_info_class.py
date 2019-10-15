@@ -89,13 +89,42 @@ class retrieve_info:
 
     @staticmethod
     # 8C to 23C
-    def remove_incompatible_hourly_weather(hourly_weather_instance_list):
+    def remove_incompatible_hourly_weather(hourly_weather_instance_list, exercise_type):
+        lower_bound_metric = 0
+        upper_bound_metric = 0
+        lower_bound_imperial = 0
+        upper_bound_imperial = 0
+
+        if exercise_type == "Walking":
+            lower_bound_metric = 12
+            upper_bound_metric = 24
+            lower_bound_imperial = 53.6
+            upper_bound_imperial = 75.2
+        elif exercise_type == "Running":
+            lower_bound_metric = 8
+            upper_bound_metric = 20
+            lower_bound_imperial = 46.4
+            upper_bound_imperial = 68
+        elif exercise_type == "Cycling":
+            lower_bound_metric = 15
+            upper_bound_metric = 27
+            lower_bound_imperial = 59
+            upper_bound_imperial = 80.6
+
+        # For testing purposes:
+        # print("lower_bound_metric: " + str(lower_bound_metric))
+        # print("upper_bound_metric: " + str(upper_bound_metric))
+        # print("lower_bound_imperial: " + str(lower_bound_imperial))
+        # print("upper_bound_imperial : " + str(upper_bound_imperial))
+
         i = 0
         length = len(hourly_weather_instance_list)
         while i < length:
-            if (hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "C" and (hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < 8 or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > 23)) \
+            if (hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "C" and (hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < lower_bound_metric or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > upper_bound_metric)) \
                     or \
-                        (hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "F" and (hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < 46.4 or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > 73.4)) or hourly_weather_instance_list[i].precipitation_probability > 0:
+                        (hourly_weather_instance_list[i].real_feel_temperature_tuple[1] == "F" and (hourly_weather_instance_list[i].real_feel_temperature_tuple[0] < lower_bound_imperial or hourly_weather_instance_list[i].real_feel_temperature_tuple[0] > upper_bound_imperial))\
+                        or \
+                            hourly_weather_instance_list[i].precipitation_probability > 0:
                 hourly_weather_instance_list.remove(hourly_weather_instance_list[i])
                 i -= 1
                 length -= 1
