@@ -19,36 +19,44 @@ def get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_o
     accuweather_api_key = retrieve_info_class.retrieve_info.get_accuweather_api_key()
     # Revert after testing:
     location = retrieve_info_class.retrieve_info.get_location(accuweather_api_key, postal_or_zip_code)
-    location_name = location[0]
-    location_key = location[1]
-    # location_key = "48968_PC"
 
-    # Get hourly weather data for TODAY.
-    hourly_weather_instance_list = retrieve_info_class.retrieve_info.get_hourly_weather(location_key, accuweather_api_key, metric)
+    if location is not None:
+        location_name = location[0]
+        location_key = location[1]
+        # location_key = "48968_PC"
 
-    # For testing purposes
-    # PyCharm Interface console fake-clear ------------
-    print('\n' * 80)  # prints 80 line breaks
-    os.system('cls' if os.name == 'nt' else 'clear')
-    # --------------------------------------------------
-    for instance in hourly_weather_instance_list:
-        if hourly_weather_class.hourly_weather.sunrise_time != None:
-            print("Sunrise: " + hourly_weather_class.hourly_weather.sunrise_time)
+        # Get hourly weather data for TODAY.
+        hourly_weather_instance_list = retrieve_info_class.retrieve_info.get_hourly_weather(location_key,
+                                                                                            accuweather_api_key, metric)
 
-        if hourly_weather_class.hourly_weather.sunset_time != None:
-            print("Sunset: " + hourly_weather_class.hourly_weather.sunset_time)
+        # For testing purposes
+        # PyCharm Interface console fake-clear ------------
+        print('\n' * 80)  # prints 80 line breaks
+        os.system('cls' if os.name == 'nt' else 'clear')
+        # --------------------------------------------------
+        for instance in hourly_weather_instance_list:
+            if hourly_weather_class.hourly_weather.sunrise_time != None:
+                print("Sunrise: " + hourly_weather_class.hourly_weather.sunrise_time)
 
-        print("Time: " + hourly_weather_class.hourly_weather.time_tuple_to_string(*instance.time_tuple))
-        print("Real-Feel Temperature: " + str(instance.real_feel_temperature_tuple[0]) + str(
-            instance.real_feel_temperature_tuple[1]))
-        print("Precipitation Probability: " + str(instance.precipitation_probability))
-        print("UV Index: " + str(instance.uv_index))
-        print("\n")
+            if hourly_weather_class.hourly_weather.sunset_time != None:
+                print("Sunset: " + hourly_weather_class.hourly_weather.sunset_time)
 
-    retrieve_info_class.retrieve_info.remove_incompatible_hourly_weather(hourly_weather_instance_list, exercise_type)
-    retrieve_info_class.retrieve_info.group_compatible_hourly_weather(hourly_weather_instance_list)
+            print("Time: " + hourly_weather_class.hourly_weather.time_tuple_to_string(*instance.time_tuple))
+            print("Real-Feel Temperature: " + str(instance.real_feel_temperature_tuple[0]) + str(
+                instance.real_feel_temperature_tuple[1]))
+            print("Precipitation Probability: " + str(instance.precipitation_probability))
+            print("UV Index: " + str(instance.uv_index))
+            print("\n")
 
-    return hourly_weather_instance_list
+        retrieve_info_class.retrieve_info.remove_incompatible_hourly_weather(hourly_weather_instance_list,
+                                                                             exercise_type)
+        retrieve_info_class.retrieve_info.group_compatible_hourly_weather(hourly_weather_instance_list)
+
+        return hourly_weather_instance_list
+    else:
+        return None
+
+
 
 def interface():
     # Improve DPI Sharpness
@@ -222,47 +230,56 @@ def change_interface(unit_type, exercise_type, postal_or_zip_code, mainframe):
         metric = "true"
 
     tuples_of_hourly_weather_instances_list = get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_or_zip_code)
+    if tuples_of_hourly_weather_instances_list is not None:
+        if len(tuples_of_hourly_weather_instances_list) > 0:
+            clear_all_data_labels()
 
-    if len(tuples_of_hourly_weather_instances_list) > 0:
-        clear_all_data_labels()
+            data_list = extract_data(tuples_of_hourly_weather_instances_list)
 
-        data_list = extract_data(tuples_of_hourly_weather_instances_list)
+            label_a = tkinter.Label(mainframe, text="Best Time to Go Out in " + location_name + ":",
+                                    font="Calibri 14 bold")
+            label_a.grid(row=4, column=1, padx=20, pady=(100, 10))
 
-        label_a = tkinter.Label(mainframe, text="Best Time to Go Out in " + location_name + ":", font="Calibri 14 bold")
-        label_a.grid(row=4, column=1, padx=20, pady=(100,10))
+            label_b = tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold")
+            label_b.grid(row=5, column=1, padx=20, pady=10)
 
-        label_b = tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold")
-        label_b.grid(row=5, column=1, padx=20, pady=10)
+            label_c = tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold")
+            label_c.grid(row=6, column=1, padx=20, pady=10)
 
-        label_c = tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold")
-        label_c.grid(row=6, column=1, padx=20, pady=10)
+            row = 4
+            column = 2
+            length = len(data_list)
+            while column - 2 < length:
+                label_d = tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14")
+                label_d.grid(row=row, column=column, padx=20, pady=(100, 10))
 
-        row = 4
-        column = 2
-        length = len(data_list)
-        while column - 2 < length:
-            label_d = tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14")
-            label_d.grid(row=row, column=column, padx=20, pady=(100,10))
+                label_e = tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14")
+                label_e.grid(row=row + 1, column=column, padx=20, pady=10)
 
-            label_e = tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14")
-            label_e.grid(row=row + 1, column=column, padx=20, pady=10)
+                label_f = tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14")
+                label_f.grid(row=row + 2, column=column, padx=20, pady=10)
 
-            label_f = tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14")
-            label_f.grid(row=row + 2, column=column, padx=20, pady=10)
+                column += 1
 
-            column += 1
+            if tuples_of_hourly_weather_instances_list[0][0].sunrise_time is not None:
+                label_g = tkinter.Label(mainframe,
+                                        text="Sunrise at " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time,
+                                        font="Calibri 14")
+                label_g.grid(row=row + 3, column=1, padx=20, pady=10)
 
-        if tuples_of_hourly_weather_instances_list[0][0].sunrise_time is not None:
-            label_g = tkinter.Label(mainframe, text="Sunrise at " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time, font="Calibri 14")
-            label_g.grid(row=row + 3, column=1, padx=20, pady=10)
-
-        if tuples_of_hourly_weather_instances_list[0][0].sunset_time is not None:
-            label_h = tkinter.Label(mainframe, text="Sunset at " + tuples_of_hourly_weather_instances_list[0][0].sunset_time, font="Calibri 14")
-            label_h.grid(row=row + 4, column=1, padx=20, pady=10)
+            if tuples_of_hourly_weather_instances_list[0][0].sunset_time is not None:
+                label_h = tkinter.Label(mainframe,
+                                        text="Sunset at " + tuples_of_hourly_weather_instances_list[0][0].sunset_time,
+                                        font="Calibri 14")
+                label_h.grid(row=row + 4, column=1, padx=20, pady=10)
+        else:
+            clear_all_data_labels()
+            label_a = tkinter.Label(mainframe,
+                                    text="Weather is bad in " + location_name + " for the rest of the day.\n" + exercise_type + " is not recommended.\nDrive instead or try a different exercise.",
+                                    font="Calibri 14")
+            label_a.grid(row=4, column=1, padx=20, pady=(100, 10))
     else:
         clear_all_data_labels()
-        label_a = tkinter.Label(mainframe, text="Weather is bad in " + location_name + " for the rest of the day. Drive instead.", font="Calibri 14")
-        label_a.grid(row=4, column=1, padx=20, pady=(100, 10))
 
 if __name__ == "__main__":
     interface()

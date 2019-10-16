@@ -4,6 +4,7 @@ import tkinter
 import requests
 import database_class
 import hourly_weather_class
+import ctypes
 
 
 class retrieve_info:
@@ -25,7 +26,15 @@ class retrieve_info:
 
         # get raw response string and convert to json
         response = requests.get(url).json()
-        return (response[0]["EnglishName"], response[0]["Key"])
+
+        try:
+            return (response[0]["EnglishName"], response[0]["Key"])
+        except Exception as e:
+            ctypes.windll.user32.MessageBoxW(0, "The zip/postal code you've entered is not supported.", "Oops!", 0)
+            print(e)
+            return None
+
+
 
     @staticmethod
     def get_hourly_weather(location_key, api_key, metric):
