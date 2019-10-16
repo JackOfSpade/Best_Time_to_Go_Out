@@ -7,12 +7,20 @@ import datetime
 import tkinter
 import plotly.graph_objects as graph_objects
 
+label_a = None
+label_b = None
+label_c = None
+label_d = None
+label_e = None
+label_f = None
+label_g = None
+label_h = None
 
 def get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_or_zip_code):
     accuweather_api_key = retrieve_info_class.retrieve_info.get_accuweather_api_key()
-    # location_key = retrieve_info_class.retrieve_info.get_location_key(accuweather_api_key, postal_or_zip_code)
     # Revert after testing:
-    location_key = "48968_PC"
+    location_key = retrieve_info_class.retrieve_info.get_location_key(accuweather_api_key, postal_or_zip_code)
+    # location_key = "48968_PC"
 
     # Get hourly weather data for TODAY.
     hourly_weather_instance_list = retrieve_info_class.retrieve_info.get_hourly_weather(location_key, accuweather_api_key, metric)
@@ -64,7 +72,7 @@ def interface():
     mainframe.nametowidget(unit_type_option_menu.menuname).configure(font="Calibri 12")
 
     exercise_type = tkinter.StringVar(root)
-    exercise_type_choices = ["Walking", "Running", "Cycling"]
+    exercise_type_choices = ["Walking", "Jogging", "Cycling"]
     exercise_type.set("Walking")
     exercise_type_option_menu = tkinter.OptionMenu(mainframe, exercise_type, *exercise_type_choices)
     exercise_type_option_menu.config(font="Calibri 12")
@@ -99,7 +107,7 @@ def extract_data(hourly_weather_instance_list):
             else:
                 next_hour = element.twenty_four_hour_time.replace(hour=element.twenty_four_hour_time.hour + 1)
 
-            temp_list.append(hourly_weather_class.hourly_weather.time_tuple_to_string(*element.time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(hourly_weather_class.hourly_weather.convert_from_24_to_12_hour_time(next_hour)))
+            temp_list.append(hourly_weather_class.hourly_weather.time_tuple_to_string(*element.time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(*hourly_weather_class.hourly_weather.convert_from_24_to_12_hour_time(next_hour)))
             temp_list.append(element.real_feel_temperature_tuple)
             temp_list.append(element.uv_index)
 
@@ -118,44 +126,89 @@ def extract_data(hourly_weather_instance_list):
 
             data_list.append(temp_list)
 
-        # Get min/max
+    # Get min/max
     for element in data_list:
+        temp_list = []
 
-        minimum = min([x[0] for x in element[1]])
-        maximum = max([x[0] for x in element[1]])
+        if type(element[1]) is list:
+            for item in element[1]:
+                temp_list.append(item[0])
+
+            unit_type = element[1][0][1]
+        elif type(element[1]) is tuple:
+            temp_list.append(element[1][0])
+            unit_type = element[1][1]
+
+        minimum = min(temp_list)
+        maximum = max(temp_list)
+
 
         if minimum == maximum:
-            element[1] = str(minimum) + str(element[1][data_list.index(element)][1])
+            element[1] = str(minimum) + unit_type
         else:
-            element[1] = str(minimum) + " " + str(element[1][data_list.index(element)][1]) + " - " + str(maximum) + " " + str(element[1][data_list.index(element)][1])
+            element[1] = str(minimum) + " " + unit_type + " - " + str(maximum) + " " + unit_type
 
-        minimum = min(element[2])
-        maximum = max(element[2])
+        temp_list.clear()
+
+        if type(element[2]) is list:
+            temp_list += element[2]
+        elif type(element[2]) is int:
+            temp_list.append(element[2])
+
+
+        minimum = min(temp_list)
+        maximum = max(temp_list)
 
         if minimum == maximum:
             element[2] = str(minimum)
         else:
             element[2] = str(minimum) + " - " + str(maximum)
-
-        # plotly table
-        # if minimum == maximum:
-        #     element[1] = [str(minimum) + str(element[1][data_list.index(element)][1])]
-        # else:
-        #     element[1] = [str(minimum) + str(element[1][data_list.index(element)][1]) + " - " + str(maximum) + str(element[1][data_list.index(element)][1])]
-        #
-        # minimum = min(element[2])
-        # maximum = max(element[2])
-        #
-        # if minimum == maximum:
-        #     element[2] = [str(minimum)]
-        # else:
-        #     element[2] = [str(minimum) + " - " + str(maximum)]
-
-        # element[1].append(element[2])
-        # del element[2]
     return data_list
 
+def clear_all_data_labels():
+    global label_a
+    global label_b
+    global label_c
+    global label_d
+    global label_e
+    global label_f
+    global label_g
+    global label_h
+
+    if label_a is not None:
+        label_a.destroy()
+
+    if label_b is not None:
+        label_b.destroy()
+
+    if label_c is not None:
+        label_c.destroy()
+
+    if label_d is not None:
+        label_d.destroy()
+
+    if label_e is not None:
+        label_e.destroy()
+
+    if label_f is not None:
+        label_f.destroy()
+
+    if label_g is not None:
+        label_g.destroy()
+
+    if label_h is not None:
+        label_h.destroy()
+
 def change_interface(unit_type, exercise_type, postal_or_zip_code, mainframe):
+    global label_a
+    global label_b
+    global label_c
+    global label_d
+    global label_e
+    global label_f
+    global label_g
+    global label_h
+
     if unit_type == "Imperial":
         metric = "false"
     else:
@@ -164,28 +217,31 @@ def change_interface(unit_type, exercise_type, postal_or_zip_code, mainframe):
     tuples_of_hourly_weather_instances_list = get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_or_zip_code)
 
     if len(tuples_of_hourly_weather_instances_list) > 0:
+        clear_all_data_labels()
+
         data_list = extract_data(tuples_of_hourly_weather_instances_list)
 
-        tkinter.Label(mainframe, text="Best Time to Go Out:", font="Calibri 14 bold").grid(row=4, column=1, padx=20, pady=(100,10))
-        tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold").grid(row=5, column=1, padx=20, pady=10)
-        tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold").grid(row=6, column=1, padx=20, pady=10)
+        label_a = tkinter.Label(mainframe, text="Best Time to Go Out:", font="Calibri 14 bold").grid(row=4, column=1, padx=20, pady=(100,10))
+        label_b = tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold").grid(row=5, column=1, padx=20, pady=10)
+        label_c = tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold").grid(row=6, column=1, padx=20, pady=10)
 
         row = 4
         column = 2
         length = len(data_list)
         while column - 2 < length:
-            tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14").grid(row=row, column=column, padx=20, pady=(100,10))
-            tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14").grid(row=row + 1, column=column, padx=20, pady=10)
-            tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14").grid(row=row + 2, column=column, padx=20, pady=10)
+            label_d = tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14").grid(row=row, column=column, padx=20, pady=(100,10))
+            label_e = tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14").grid(row=row + 1, column=column, padx=20, pady=10)
+            label_f = tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14").grid(row=row + 2, column=column, padx=20, pady=10)
             column += 1
 
         if tuples_of_hourly_weather_instances_list[0][0].sunrise_time is not None:
-            tkinter.Label(mainframe, text="Sunrise at " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time, font="Calibri 14").grid(row=row + 3, column=1, padx=20, pady=10)
+            label_g = tkinter.Label(mainframe, text="Sunrise at " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time, font="Calibri 14").grid(row=row + 3, column=1, padx=20, pady=10)
 
         if tuples_of_hourly_weather_instances_list[0][0].sunset_time is not None:
-            tkinter.Label(mainframe, text="Sunset at " + tuples_of_hourly_weather_instances_list[0][0].sunset_time, font="Calibri 14").grid(row=row + 4, column=1, padx=20, pady=10)
+            label_h = tkinter.Label(mainframe, text="Sunset at " + tuples_of_hourly_weather_instances_list[0][0].sunset_time, font="Calibri 14").grid(row=row + 4, column=1, padx=20, pady=10)
     else:
-        tkinter.Label(mainframe, text="There is no good time for the rest of today. Try again tomorrow.", font="Calibri 14").grid(row=4, column=1, padx=20, pady=(100, 10))
+        clear_all_data_labels()
+        label_a = tkinter.Label(mainframe, text="Weather is bad for the rest of the day. Drive instead.", font="Calibri 14").grid(row=4, column=1, padx=20, pady=(100, 10))
 
 
 

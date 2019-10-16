@@ -33,6 +33,7 @@ class retrieve_info:
 
     @staticmethod
     def get_hourly_weather(location_key, api_key, metric):
+        # Upgraded API key needed for 24-hour hourly weather data
         url = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/%s?apikey=%s&details=true&metric=%s" % (location_key, api_key, metric)
 
         # Save a local copy to text file in case internet fails.
@@ -49,17 +50,18 @@ class retrieve_info:
 
         # Revert after testing:
         # Save a local copy to shelve in case internet fails.
-        # try:
-        #     database_class.database.add("weather", json.dumps(requests.get(url).json()))
-        # except requests.exceptions.RequestException as e:
-        #     print(e)
-        #     tkinter.messagebox.showerror("Cannot connect to the weather API.\nPreviously saved weather data will be used.", "Error")
+        try:
+            database_class.database.add("weather", json.dumps(requests.get(url).json()))
+        except requests.exceptions.RequestException as e:
+            print(e)
+            tkinter.messagebox.showerror("Cannot connect to the weather API.\nPreviously saved weather data will be used.", "Error")
 
         # Open weather data from database
         weather_list = json.loads(database_class.database.access("weather"))
 
         hourly_weather_instance_list = []
         previous_daylight = weather_list[0]["IsDaylight"]
+        previous_period = ""
 
         for dictionary in weather_list:
             temp_time_tuple = hourly_weather_class.hourly_weather.convert_from_epoch_to_12_hour_time(dictionary["EpochDateTime"])
@@ -71,7 +73,9 @@ class retrieve_info:
             hourly_weather_instance = hourly_weather_class.hourly_weather(time_tuple, twenty_four_hour_time, real_feel_temperature_tuple, precipitation_probability, uv_index)
 
             # Find sunrise or sunset if not too late.
-            previous_hour_plus_30_minutes = time_tuple[0].replace(hour = time_tuple[0].hour - 1, minute = 30)
+            # Sunrise/sunset in North America will never cross am/pm
+            previous_hour_plus_30_minutes = time_tuple[0].replace(hour=time_tuple[0].hour - 1, minute=30)
+
             if not previous_daylight and dictionary["IsDaylight"]:
                 hourly_weather_class.hourly_weather.sunrise_time = hourly_weather_class.hourly_weather.time_tuple_to_string(previous_hour_plus_30_minutes, time_tuple[1])
             elif previous_daylight and not dictionary["IsDaylight"]:

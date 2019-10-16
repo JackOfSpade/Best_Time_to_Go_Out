@@ -33,7 +33,8 @@ class hourly_weather:
 
         return str(twelve_hour_time.hour) + ":" + str(twelve_hour_time.minute) + " " + period
 
-    def convert_from_24_to_12_hour_time(self, twenty_four_hour_time):
+    @staticmethod
+    def convert_from_24_to_12_hour_time(twenty_four_hour_time):
         twelve_hour_time = copy.deepcopy(twenty_four_hour_time)
 
         if twenty_four_hour_time.hour == 0:
@@ -48,10 +49,14 @@ class hourly_weather:
             converted_hour = twenty_four_hour_time.hour - 12
             twelve_hour_time = twenty_four_hour_time.replace(hour=converted_hour)
             period = "pm"
-
-        self.time_tuple[0] = (twelve_hour_time, period)
-
         return (twelve_hour_time, period)
+
+    # @staticmethod
+    # def convert_from_12_to_24_hour_time(twelve_hour_time):
+    #     if twenty_four_hour_time.hour == 23:
+    #         next_hour = element.twenty_four_hour_time.hour.replace(hour=0)
+    #     else:
+    #         next_hour = element.twenty_four_hour_time.replace(hour=element.twenty_four_hour_time.hour + 1)
 
     sunrise_time = None
     sunset_time = None
