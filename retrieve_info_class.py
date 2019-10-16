@@ -1,13 +1,9 @@
 import configparser
-import requests
-import sys
 import json
-import time
-import datetime
 import tkinter
+import requests
 import database_class
 import hourly_weather_class
-import copy
 
 
 class retrieve_info:
@@ -23,13 +19,13 @@ class retrieve_info:
         return config["weather_api_keys"]["accuweather_api_key"]
 
     @staticmethod
-    def get_location_key(api_key, postal_or_zip_code):
+    def get_location(api_key, postal_or_zip_code):
         # order of query strings doesn't matter
         url = "http://dataservice.accuweather.com/locations/v1/postalcodes/search?apikey=%s&q=%s" % (api_key, postal_or_zip_code)
 
         # get raw response string and convert to json
         response = requests.get(url).json()
-        return response[0]["Key"]
+        return (response[0]["EnglishName"], response[0]["Key"])
 
     @staticmethod
     def get_hourly_weather(location_key, api_key, metric):
