@@ -14,49 +14,62 @@ class retrieve_info:
 
     # uses the configparser standard library to read the INI file.
     @staticmethod
-    def get_accuweather_api_key():
+    def get_accuweather_api_key(index):
         config = configparser.ConfigParser()
         config.read("config.ini")
-        return config["weather_api_keys"]["accuweather_api_key"]
+        key_list = list(config.items("weather_api_keys"))
+        return key_list[index][1]
 
     @staticmethod
     def get_location(api_key, postal_or_zip_code):
-        # order of query strings doesn't matter
-        url = "http://dataservice.accuweather.com/locations/v1/postalcodes/search?apikey=%s&q=%s" % (api_key, postal_or_zip_code)
+        index = 0
 
-        # get raw response string and convert to json
-        response = requests.get(url).json()
+        while index < 20:
+            # order of query strings doesn't matter
+            url = "http://dataservice.accuweather.com/locations/v1/postalcodes/search?apikey=%s&q=%s" % (api_key, postal_or_zip_code)
+            # get raw response string and convert to json
+            response = requests.get(url).json()
 
-        try:
-            return (response[0]["EnglishName"], response[0]["Key"])
-        except Exception as e:
-            ctypes.windll.user32.MessageBoxW(0, "The zip/postal code you've entered is not supported.", "Oops!", 0)
-            print(e)
-            return None
+            if "Code" in response and (response["Code"] == "Unauthorized" or response["Code"] == "ServiceUnavailable"):
+                index += 1
+                api_key = retrieve_info.get_accuweather_api_key(index)
+            else:
+                try:
+                    return (response[0]["EnglishName"], response[0]["Key"])
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "The zip/postal code you've entered is not supported.", "Oops!", 0)
+                    print("Exception:" + str(e))
+                    return None
+
+        ctypes.windll.user32.MessageBoxW(0, "Maximum amount of API calls has been reached.\nTry again tomorrow.", "Oops!", 0)
+        return None
+
 
 
 
     @staticmethod
     def get_hourly_weather(location_key, api_key, metric):
-        # Upgraded API key needed for 24-hour hourly weather data
-        url = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/%s?apikey=%s&details=true&metric=%s" % (location_key, api_key, metric)
+        index = 0
 
-        # Save a local copy to text file in case internet fails.
-        # with open("weather_list.txt", "w") as file_out:
-        #    try:
-        #        json.dump(requests.get(url).json(), file_out)
-        #    except requests.exceptions.RequestException as e:
-        #        print(e)
-        #        tkinter.messagebox.showerror("Cannot connect to the weather API.\nPreviously saved weather data will be used.", "Error")
+        while index < 20:
+            # Upgraded API key needed for 24-hour hourly weather data
+            url = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/%s?apikey=%s&details=true&metric=%s" % (location_key, api_key, metric)
+            response = requests.get(url).json()
 
-        # Open weather data from text file
-        # with open("weather_list.txt") as file:
-        #    weather_list = json.load(file)
+            if "Code" in response and (response["Code"] == "Unauthorized" or response["Code"] == "ServiceUnavailable"):
+                index += 1
+                api_key = retrieve_info.get_accuweather_api_key(index)
+            else:
+                break
+
+        if index == 20:
+            ctypes.windll.user32.MessageBoxW(0, "Maximum amount of API calls has been reached.\nTry again tomorrow.", "Oops!", 0)
+            return None
 
         # Revert after testing:
         # Save a local copy to shelve in case internet fails.
         try:
-            database_class.database.add("weather", json.dumps(requests.get(url).json()))
+            database_class.database.add("weather", json.dumps(response))
         except requests.exceptions.RequestException as e:
             print(e)
             tkinter.messagebox.showerror("Cannot connect to the weather API.\nPreviously saved weather data will be used.", "Error")

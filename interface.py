@@ -16,7 +16,7 @@ label_h = None
 
 def get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_or_zip_code):
     global location_name
-    accuweather_api_key = retrieve_info_class.retrieve_info.get_accuweather_api_key()
+    accuweather_api_key = retrieve_info_class.retrieve_info.get_accuweather_api_key(0)
     # Revert after testing:
     location = retrieve_info_class.retrieve_info.get_location(accuweather_api_key, postal_or_zip_code)
 
