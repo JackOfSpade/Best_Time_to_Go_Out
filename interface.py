@@ -5,14 +5,8 @@ import retrieve_info_class
 import os
 
 location_name = None
-label_a = None
-label_b = None
-label_c = None
-label_d = None
-label_e = None
-label_f = None
-label_g = None
-label_h = None
+label_list = []
+entry_box = None
 
 def get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_or_zip_code):
     global location_name
@@ -59,6 +53,8 @@ def get_appropriate_hourly_weather_instance_list(metric, exercise_type, postal_o
 
 
 def interface():
+    global entry_box
+
     # Improve DPI Sharpness
     windll.shcore.SetProcessDpiAwareness(1)
     root = tkinter.Tk()
@@ -115,18 +111,18 @@ def extract_data(hourly_weather_instance_list):
     for element in hourly_weather_instance_list:
         temp_list = []
 
-        if type(element) is hourly_weather_class.hourly_weather:
-            if element.twenty_four_hour_time.hour == 23:
-                next_hour = element.twenty_four_hour_time.hour.replace(hour=0)
+        if len(element) == 1:
+            if element[0].twenty_four_hour_time.hour == 23:
+                next_hour = element[0].twenty_four_hour_time.replace(hour=0)
             else:
-                next_hour = element.twenty_four_hour_time.replace(hour=element.twenty_four_hour_time.hour + 1)
+                next_hour = element[0].twenty_four_hour_time.replace(hour=element[0].twenty_four_hour_time.hour + 1)
 
-            temp_list.append(hourly_weather_class.hourly_weather.time_tuple_to_string(*element.time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(*hourly_weather_class.hourly_weather.convert_from_24_to_12_hour_time(next_hour)))
-            temp_list.append(element.real_feel_temperature_tuple)
-            temp_list.append(element.uv_index)
+            temp_list.append(hourly_weather_class.hourly_weather.time_tuple_to_string(*element[0].time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(*hourly_weather_class.hourly_weather.convert_from_24_to_12_hour_time(next_hour)))
+            temp_list.append(element[0].real_feel_temperature_tuple)
+            temp_list.append(element[0].uv_index)
 
             data_list.append(temp_list)
-        elif type(element) is tuple:
+        elif len(element) > 1:
             temp_list.append(hourly_weather_class.hourly_weather.time_tuple_to_string(*element[0].time_tuple) + " - " + hourly_weather_class.hourly_weather.time_tuple_to_string(*element[len(element) - 1].time_tuple))
             temp_list2 = []
             temp_list3 = []
@@ -180,49 +176,19 @@ def extract_data(hourly_weather_instance_list):
     return data_list
 
 def clear_all_data_labels():
-    global label_a
-    global label_b
-    global label_c
-    global label_d
-    global label_e
-    global label_f
-    global label_g
-    global label_h
+    global label_list
 
-    if label_a is not None:
-        label_a.destroy()
+    for element in label_list:
+            element.destroy()
 
-    if label_b is not None:
-        label_b.destroy()
-
-    if label_c is not None:
-        label_c.destroy()
-
-    if label_d is not None:
-        label_d.destroy()
-
-    if label_e is not None:
-        label_e.destroy()
-
-    if label_f is not None:
-        label_f.destroy()
-
-    if label_g is not None:
-        label_g.destroy()
-
-    if label_h is not None:
-        label_h.destroy()
+    label_list.clear()
 
 def change_interface(unit_type, exercise_type, postal_or_zip_code, mainframe):
     global location_name
-    global label_a
-    global label_b
-    global label_c
-    global label_d
-    global label_e
-    global label_f
-    global label_g
-    global label_h
+    global label_list
+    global entry_box
+
+    entry_box.bind("<FocusIn>", lambda arg: entry_box.config(fg="black", font="Calibri 12"))
 
     if unit_type == "Imperial":
         metric = "false"
@@ -236,48 +202,50 @@ def change_interface(unit_type, exercise_type, postal_or_zip_code, mainframe):
 
             data_list = extract_data(tuples_of_hourly_weather_instances_list)
 
-            label_a = tkinter.Label(mainframe, text="Best Time to Go Out in " + location_name + ":",
-                                    font="Calibri 14 bold")
-            label_a.grid(row=4, column=1, padx=20, pady=(100, 10))
+            temp_label = tkinter.Label(mainframe, text="Best Time to Go Out in " + location_name + ":", font="Calibri 14 bold")
+            temp_label.grid(row=4, column=1, padx=20, pady=(100, 10))
+            label_list.append(temp_label)
 
-            label_b = tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold")
-            label_b.grid(row=5, column=1, padx=20, pady=10)
+            temp_label = tkinter.Label(mainframe, text="Feels-like Temperature Range:", font="Calibri 14 bold")
+            temp_label.grid(row=5, column=1, padx=20, pady=10)
+            label_list.append(temp_label)
 
-            label_c = tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold")
-            label_c.grid(row=6, column=1, padx=20, pady=10)
+            temp_label = tkinter.Label(mainframe, text="UV Index Range:", font="Calibri 14 bold")
+            temp_label.grid(row=6, column=1, padx=20, pady=10)
+            label_list.append(temp_label)
 
             row = 4
             column = 2
             length = len(data_list)
             while column - 2 < length:
-                label_d = tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14")
-                label_d.grid(row=row, column=column, padx=20, pady=(100, 10))
+                temp_label = tkinter.Label(mainframe, text=data_list[column - 2][0], font="Calibri 14")
+                temp_label.grid(row=row, column=column, padx=20, pady=(100, 10))
+                label_list.append(temp_label)
 
-                label_e = tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14")
-                label_e.grid(row=row + 1, column=column, padx=20, pady=10)
+                temp_label = tkinter.Label(mainframe, text=data_list[column - 2][1], font="Calibri 14")
+                temp_label.grid(row=row + 1, column=column, padx=20, pady=10)
+                label_list.append(temp_label)
 
-                label_f = tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14")
-                label_f.grid(row=row + 2, column=column, padx=20, pady=10)
+                temp_label = tkinter.Label(mainframe, text=data_list[column - 2][2], font="Calibri 14")
+                temp_label.grid(row=row + 2, column=column, padx=20, pady=10)
+                label_list.append(temp_label)
 
                 column += 1
 
             if tuples_of_hourly_weather_instances_list[0][0].sunrise_time is not None:
-                label_g = tkinter.Label(mainframe,
-                                        text="Sunrise at " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time,
-                                        font="Calibri 14")
-                label_g.grid(row=row + 3, column=1, padx=20, pady=10)
+                temp_label = tkinter.Label(mainframe, text="Sunrise at " + tuples_of_hourly_weather_instances_list[0][0].sunrise_time, font="Calibri 14")
+                temp_label.grid(row=row + 3, column=1, padx=20, pady=10)
+                label_list.append(temp_label)
 
             if tuples_of_hourly_weather_instances_list[0][0].sunset_time is not None:
-                label_h = tkinter.Label(mainframe,
-                                        text="Sunset at " + tuples_of_hourly_weather_instances_list[0][0].sunset_time,
-                                        font="Calibri 14")
-                label_h.grid(row=row + 4, column=1, padx=20, pady=10)
+                temp_label = tkinter.Label(mainframe, text="Sunset at " + tuples_of_hourly_weather_instances_list[0][0].sunset_time, font="Calibri 14")
+                temp_label.grid(row=row + 4, column=1, padx=20, pady=10)
+                label_list.append(temp_label)
         else:
             clear_all_data_labels()
-            label_a = tkinter.Label(mainframe,
-                                    text="Weather is bad in " + location_name + " for the rest of the day.\n" + exercise_type + " is not recommended.\nDrive instead or try a different exercise.",
-                                    font="Calibri 14")
-            label_a.grid(row=4, column=1, padx=20, pady=(100, 10))
+            temp_label = tkinter.Label(mainframe, text="Weather is bad in " + location_name + " for the rest of the day.\n" + exercise_type + " is not recommended.\nDrive instead or try a different exercise.", font="Calibri 14")
+            temp_label.grid(row=4, column=1, padx=20, pady=(100, 10))
+            label_list.append(temp_label)
     else:
         clear_all_data_labels()
 

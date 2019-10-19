@@ -17,7 +17,7 @@ class retrieve_info:
     def get_accuweather_api_key(index):
         config = configparser.ConfigParser()
         config.read("config.ini")
-        key_list = list(config.items("weather_api_keys"))
+        key_list = list(config.items("accuweather_api_keys"))
         return key_list[index][1]
 
     @staticmethod
@@ -122,7 +122,7 @@ class retrieve_info:
             upper_bound_metric = 24
             lower_bound_imperial = 53.6
             upper_bound_imperial = 75.2
-        elif exercise_type == "Running":
+        elif exercise_type == "Jogging":
             lower_bound_metric = 8
             upper_bound_metric = 20
             lower_bound_imperial = 46.4
@@ -157,6 +157,8 @@ class retrieve_info:
     def group_compatible_hourly_weather(hourly_weather_instance_list):
         i = 0
         length = len(hourly_weather_instance_list)
+
+        # Group objects in multi-element lists.
         while i < length:
             if(i + 1 < length):
                 if type(hourly_weather_instance_list[i]) is hourly_weather_class.hourly_weather:
@@ -176,4 +178,9 @@ class retrieve_info:
                         i -= 1
                         length -= 1
             i += 1
+
+        # Put all non-grouped objects into a tuple as well
+        for element in hourly_weather_instance_list:
+            if type(element) is not tuple:
+                hourly_weather_instance_list[hourly_weather_instance_list.index(element)] = (hourly_weather_instance_list[hourly_weather_instance_list.index(element)], )
 
