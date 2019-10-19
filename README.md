@@ -4,8 +4,6 @@
 # Screenshots
 <img src="https://i.imgur.com/aY9VqID.png">
 
-# Description
-
 Run _____ for a demo of the application.
 
 The API key used in the demo is not included in the source code for security reasons. The demo will run fine, but the source code will not run unless you include a "config.ini" file in the following format:
