@@ -1,4 +1,4 @@
-# Best_Time_to_Jog
+<img src="https://i.imgur.com/vXJWYF8.jpg" alt="alt text" width="850" height="622">
 
 Run _____ for a demo of the application.
 
