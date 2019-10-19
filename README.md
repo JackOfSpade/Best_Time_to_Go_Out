@@ -3,6 +3,7 @@
 
 # Screenshots
 <img src="https://i.imgur.com/aY9VqID.png">
+<img src="https://i.imgur.com/XlNILFV.png">
 
 Run _____ for a demo of the application.
 
