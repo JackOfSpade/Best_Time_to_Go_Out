@@ -11,7 +11,7 @@ Due to security reasons, the API key for AccuWeather is not included in the sour
 
 ```ini
 [accuweather_api_keys]
-key=NEhQ6xAMK0AgC9vWwpCaDMgWznYoPS83
+key=your_key_here
 ```
 
 You can get a free AccuWeather APi Key here: https://developer.accuweather.com/packages
