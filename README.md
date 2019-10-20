@@ -7,11 +7,11 @@
 <img src="https://i.imgur.com/XlNILFV.png">
 
 # For Developers:
-Due to security reasons, the API key for AccuWeather is not included in the source code. You must create a `config.ini` file at the root level in the following format:
+Due to security reasons, the API key for Amazon Web Services (AWS) is not included in the source code. You must create a `config.ini` file at the root level in the following format:
 
 ```ini
 [accuweather_api_keys]
 key=your_key_here
 ```
 
-You can get a free AccuWeather API Key here: https://developer.accuweather.com/packages
+You can get a free AWS API Key here: https://aws.amazon.com/console/
