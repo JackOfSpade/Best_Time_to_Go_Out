@@ -14,4 +14,4 @@ Due to security reasons, the API key for AccuWeather is not included in the sour
 key=your_key_here
 ```
 
-You can get a free AccuWeather APi Key here: https://developer.accuweather.com/packages
+You can get a free AccuWeather API Key here: https://developer.accuweather.com/packages
