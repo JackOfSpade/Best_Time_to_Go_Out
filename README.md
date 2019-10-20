@@ -1,7 +1,7 @@
 # Demo
 <img src="https://i.imgur.com/vXJWYF8.jpg" alt="alt text" width="850" height="622">
 
-This app tells users the best time to go out if they're not planning on driving.
+This app tells users the best hours to go out if they're not planning on driving.
 
 Takes into account the temperature, wind, humidity, sun intensity and chance of precipatation.
 
