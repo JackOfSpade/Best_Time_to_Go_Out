@@ -6,12 +6,12 @@
 <img src="https://i.imgur.com/aY9VqID.png">
 <img src="https://i.imgur.com/XlNILFV.png">
 
-Run _____ for a demo of the application.
+# For Developers:
+Due to security reasons, the API key for AccuWeather is not included in the source code. You must create a `config.ini` file at the root level in the following format:
 
-The API key used in the demo is not included in the source code for security reasons. The demo will run fine, but the source code will not run unless you include a "config.ini" file in the following format:
+```ini
+[accuweather_api_keys]
+key=NEhQ6xAMK0AgC9vWwpCaDMgWznYoPS83
+```
 
-[openweathermap]
-
-api = your_api_key_here
-
-You can get a free openweathermap APi Key here: https://openweathermap.org/api
+You can get a free AccuWeather APi Key here: https://developer.accuweather.com/packages
