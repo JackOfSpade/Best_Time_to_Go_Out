@@ -8,11 +8,12 @@ Uses A
 <img src="https://i.imgur.com/aY9VqID.png">
 <img src="https://i.imgur.com/XlNILFV.png">
 
-# For Developers
-Due to security reasons, the API key for Amazon Polly used in the compiled `TextToSpeech.jar` is not included in the source code. You must change the following line in `AmazonPolly.java` before compiling:
+# For Developers:
+Due to security reasons, the API key for AccuWeather is not included in the source code. You must create a `config.ini` file at the root level in the following format:
 
-```java 
-BasicAWSCredentials credentials = new BasicAWSCredentials("Your_Access_Key_ID", "Your_Secret_Key");
+```ini
+[accuweather_api_keys]
+key=your_key_here
 ```
 
 You can get a free AccuWeather API Key here: https://developer.accuweather.com/packages
