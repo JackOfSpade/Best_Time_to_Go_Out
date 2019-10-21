@@ -3,7 +3,7 @@
 
 This app tells users the best hours to go out if they're not planning on driving.
 
-Takes into account the temperature, wind, humidity, sun intensity and chance of precipatation.
+Takes into account the temperature, wind, humidity, sun intensity and chance of precipitation.
 
 The former 4 variables are used to calculate the "Feels-like Temperature". And the last variable is used to guarantee no rain.
 
