@@ -44,9 +44,6 @@ class retrieve_info:
         ctypes.windll.user32.MessageBoxW(0, "Maximum amount of API calls has been reached.\nTry again tomorrow.", "Oops!", 0)
         return None
 
-
-
-
     @staticmethod
     def get_hourly_weather(location_key, api_key, metric):
         index = 0
